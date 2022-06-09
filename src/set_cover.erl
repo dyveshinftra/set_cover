@@ -16,16 +16,13 @@
 
 % brute-force search algorithm
 brute_force(M) ->
-    % S stays a map to keep track of the keys
-    S = maps:map(fun(_Key, Value) -> sets:from_list(Value) end, M),
-    U = sets:union(maps:values(S)),
-    C = sets:new(),
+    U = lists:uniq(lists:flatten(maps:values(M))),
 
     % start brute-force search algorithm
-    brute_force(U, S, C, [], maps:keys(S)).
+    brute_force(U, M, [], [], maps:keys(M)).
 
 % found a cover
-brute_force(U, _, U, CKeys, _) -> CKeys;
+brute_force(U, _, C, CKeys, _) when length(U) == length(C) -> CKeys;
 
 % no cover found
 brute_force(_, S, _, _, []) -> maps:keys(S);
@@ -33,7 +30,7 @@ brute_force(_, S, _, _, []) -> maps:keys(S);
 % try with and without next subset
 brute_force(U, S, C, CKeys, [H|T]) ->
     % with subset from S
-    CKeys1 = brute_force(U, S, sets:union(C, maps:get(H, S)), [H|CKeys], T),
+    CKeys1 = brute_force(U, S, lists:uniq(C ++ maps:get(H,S)), [H|CKeys], T),
 
     % without subset from S
     CKeys2 = brute_force(U, S, C, CKeys, T),
@@ -50,6 +47,27 @@ brute_force_test() ->
 
     % example universe
     [one,four] = brute_force(#{one=>[1,2,3], two=>[2,4], three=>[3,5], four=>[4,5]}),
+
+    % Pokémon Go
+    [steel,ice,ground,grass,ghost,flying,fighting] = brute_force(#{
+        bug         =>  [dark,grass,psychic],
+        dark        =>  [psychic,ghost],
+        dragon      =>  [dragon],
+        electric    =>  [water,flying],
+        fairy       =>  [fighting,dragon,dark],
+        fighting    =>  [normal,ice,rock,dark,steel],
+        fire        =>  [grass,ice,bug,steel],
+        flying      =>  [grass,fighting,bug],
+        ghost       =>  [psychic,ghost],
+        grass       =>  [water,ground,rock],
+        ground      =>  [fire,electric,poison,rock,steel],
+        ice         =>  [grass,ground,flying,dragon],
+        normal      =>  [rock,steel],
+        poison      =>  [grass,fairy],
+        psychic     =>  [fighting,poison],
+        rock        =>  [fire,ice,flying,bug],
+        steel       =>  [ice,rock,fairy],
+        water       =>  [fire,ground,rock]}),
 
     % all done
     ok.
