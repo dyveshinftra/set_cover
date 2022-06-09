@@ -16,7 +16,7 @@
 
 % brute-force search algorithm
 brute_force(M) ->
-    U = lists:uniq(lists:flatten(maps:values(M))),
+    U = lists:usort(lists:flatten(maps:values(M))),
 
     % start brute-force search algorithm
     brute_force(U, M, [], [], maps:keys(M)).
@@ -30,7 +30,7 @@ brute_force(_, S, _, _, []) -> maps:keys(S);
 % try with and without next subset
 brute_force(U, S, C, CKeys, [H|T]) ->
     % with subset from S
-    CKeys1 = brute_force(U, S, lists:uniq(C ++ maps:get(H,S)), [H|CKeys], T),
+    CKeys1 = brute_force(U, S, lists:usort(C ++ maps:get(H,S)), [H|CKeys], T),
 
     % without subset from S
     CKeys2 = brute_force(U, S, C, CKeys, T),
